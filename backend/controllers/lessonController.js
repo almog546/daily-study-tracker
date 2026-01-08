@@ -50,6 +50,16 @@ async function getLessons(req, res) {
             },
         });
 
+        if (lesson) {
+            await prisma.studySession.create({
+                data: {
+                    userId: req.session.userId,
+                    lessonId: lesson.id,
+                    completed: false,
+                },
+            });
+        }
+
         res.json({ lesson, completed: false });
     } catch (error) {
         console.error(error);
