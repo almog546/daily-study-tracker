@@ -1,5 +1,5 @@
 import './App.css';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Login from './Login/Login';
 import Signup from './Signup/Signup';
 import Home from './Home/Home';
@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 
 function App() {
     const [user, setUser] = useState(null);
+    const location = useLocation();
 
     useEffect(() => {
         async function fetchUser() {
@@ -29,7 +30,7 @@ function App() {
             }
         }
         fetchUser();
-    }, []);
+    }, [location]);
     useEffect(() => {
         async function fetchSession() {
             try {

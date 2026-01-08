@@ -7,10 +7,11 @@ type HomeProps = {
 };
 
 export default function Home({ user }: HomeProps) {
-    const [todadylesson, setTodayLesson] = useState<Lesson | null>(null);
+    const [todadylesson, setTodayLesson] = useState<any>(null);
     const [showMessage, setShowMessage] = useState(false);
     const [message, setMessage] = useState('');
     const [isDisabled, setIsDisabled] = useState(false);
+
     useEffect(() => {
         async function fetchlesson() {
             try {
