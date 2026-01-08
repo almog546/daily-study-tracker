@@ -60,6 +60,25 @@ export default function Home({ user }: HomeProps) {
             console.error('Error marking lesson as finished:', error);
         }
     }
+    async function logout() {
+        async function performLogout() {
+            try {
+                const res = await fetch(
+                    `${import.meta.env.VITE_API_URL}/api/auth/logout`,
+                    {
+                        method: 'POST',
+                        credentials: 'include',
+                    }
+                );
+                if (res.ok) {
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Error during logout:', error);
+            }
+        }
+        performLogout();
+    }
 
     return (
         <>
@@ -74,15 +93,23 @@ export default function Home({ user }: HomeProps) {
                         <span className={styles.lessonTag}>Today's Lesson</span>
                         <h1>{todadylesson?.title}</h1>
                         <p>{todadylesson?.description}</p>
-                        <button
-                            className={styles.finishButton}
-                            onClick={updateStudySession}
-                            disabled={isDisabled}
-                        >
-                            {isDisabled
-                                ? 'Lesson Completed'
-                                : 'Mark as Finished'}
-                        </button>
+                        <div className={styles.buttonContainer}>
+                            <button
+                                className={styles.finishButton}
+                                onClick={updateStudySession}
+                                disabled={isDisabled}
+                            >
+                                {isDisabled
+                                    ? 'Lesson Completed'
+                                    : 'Mark as Finished'}
+                            </button>
+                            <button
+                                className={styles.logoutButton}
+                                onClick={logout}
+                            >
+                                Logout
+                            </button>
+                        </div>
                     </div>
                 </>
             ) : (

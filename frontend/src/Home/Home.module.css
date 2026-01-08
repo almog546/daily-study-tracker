@@ -127,6 +127,11 @@
 
     line-height: 1.6;
 }
+.buttonContainer {
+    margin-top: 1rem;
+    display: flex;
+    gap: 1rem;
+}
 
 @media (max-width: 768px) {
     .description {

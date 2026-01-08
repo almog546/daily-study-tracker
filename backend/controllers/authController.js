@@ -75,9 +75,20 @@ async function me(req, res, next) {
         res.status(500).json({ message: 'Internal server error' });
     }
 }
+function logout(req, res) {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to logout' });
+        }
+
+        res.clearCookie('connect.sid');
+        res.status(200).json({ message: 'Logout successful' });
+    });
+}
 
 module.exports = {
     signup,
     login,
     me,
+    logout,
 };
