@@ -10,6 +10,7 @@ export default function Home({ user }: HomeProps) {
     const [todadylesson, setTodayLesson] = useState<Lesson | null>(null);
     const [showMessage, setShowMessage] = useState(false);
     const [message, setMessage] = useState('');
+    const [isDisabled, setIsDisabled] = useState(false);
     useEffect(() => {
         async function fetchlesson() {
             try {
@@ -22,7 +23,9 @@ export default function Home({ user }: HomeProps) {
                 );
                 if (res.ok) {
                     const data = await res.json();
+
                     setTodayLesson(data.lesson);
+                    setIsDisabled(data.completed);
                 }
             } catch (error) {
                 console.error('Error fetching today lesson status:', error);
@@ -30,35 +33,7 @@ export default function Home({ user }: HomeProps) {
         }
         fetchlesson();
     }, []);
-    async function handleFinishLesson() {
-        if (!todadylesson) {
-            handleShowMessage('No lesson to finish today.');
 
-            return;
-        }
-        try {
-            const res = await fetch(
-                `${import.meta.env.VITE_API_URL}/api/studySession`,
-                {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        lessonId: todadylesson.id,
-                    }),
-                }
-            );
-
-            if (res.ok) {
-                handleShowMessage('Job created successfully');
-                setTodayLesson('');
-            }
-        } catch (error) {
-            console.error('Error marking lesson as finished:', error);
-        }
-    }
     function handleShowMessage(text: string) {
         setMessage(text);
         setShowMessage(true);
@@ -66,6 +41,23 @@ export default function Home({ user }: HomeProps) {
         setTimeout(() => {
             setShowMessage(false);
         }, 2000);
+    }
+    async function updateStudySession() {
+        try {
+            const res = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/studySession`,
+                {
+                    method: 'PUT',
+                    credentials: 'include',
+                }
+            );
+            if (res.ok) {
+                handleShowMessage('Lesson finished successfully');
+                setIsDisabled(true);
+            }
+        } catch (error) {
+            console.error('Error marking lesson as finished:', error);
+        }
     }
 
     return (
@@ -82,12 +74,13 @@ export default function Home({ user }: HomeProps) {
                         <h1>{todadylesson?.title}</h1>
                         <p>{todadylesson?.description}</p>
                         <button
-                            onClick={handleFinishLesson}
                             className={styles.finishButton}
+                            onClick={updateStudySession}
+                            disabled={isDisabled}
                         >
-                            {todadylesson
-                                ? 'Finish Lesson'
-                                : 'alrady finished!'}
+                            {isDisabled
+                                ? 'Lesson Completed'
+                                : 'Mark as Finished'}
                         </button>
                     </div>
                 </>

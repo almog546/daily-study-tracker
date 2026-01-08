@@ -37,6 +37,7 @@ model StudySession {
   userId     String
   lessonId   String
   createdAt  DateTime @default(now())
+  completed  Boolean  @default(false)
   user       User     @relation(fields: [userId], references: [id])
   lesson     Lesson   @relation(fields: [lessonId], references: [id])
 }

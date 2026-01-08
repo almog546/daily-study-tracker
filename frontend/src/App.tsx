@@ -30,6 +30,29 @@ function App() {
         }
         fetchUser();
     }, []);
+    useEffect(() => {
+        async function fetchSession() {
+            try {
+                const res = await fetch(
+                    `${import.meta.env.VITE_API_URL}/api/studySession`,
+                    {
+                        method: 'POST',
+                        credentials: 'include',
+                    }
+                );
+                if (res.ok) {
+                    const data = await res.json();
+                    console.log('Study session data:', data);
+                }
+            } catch (error) {
+                console.error(
+                    'Error creating or fetching study session:',
+                    error
+                );
+            }
+        }
+        fetchSession();
+    }, []);
     return (
         <Routes>
             <Route path="/" element={<Home user={user} />} />

@@ -144,6 +144,14 @@
     .lessonContainer p {
         font-weight: bolder;
     }
+    .overlay {
+        padding: 1rem;
+    }
+    .messageBox {
+        width: 12rem;
+        padding: 1rem 1.5rem;
+        font-size: 0.85rem;
+    }
 }
 
 @media (max-width: 375px) {
