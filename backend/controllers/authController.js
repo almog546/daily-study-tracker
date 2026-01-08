@@ -75,55 +75,9 @@ async function me(req, res, next) {
         res.status(500).json({ message: 'Internal server error' });
     }
 }
-async function alreadyStudied(req, res) {
-    const now = new Date();
-    const startOfDay = new Date(
-        Date.UTC(
-            now.getUTCFullYear(),
-            now.getUTCMonth(),
-            now.getUTCDate(),
-            0,
-            0,
-            0,
-            0
-        )
-    );
-    const startOfNextDay = new Date(
-        Date.UTC(
-            now.getUTCFullYear(),
-            now.getUTCMonth(),
-            now.getUTCDate() + 1,
-            0,
-            0,
-            0,
-            0
-        )
-    );
-    try {
-        const lessonsStudiedToday = await prisma.studySession.findMany({
-            where: {
-                userId: req.session.userId,
-                createdAt: {
-                    gte: startOfDay,
-                    lt: startOfNextDay,
-                },
-            },
-        });
-
-        if (lessonsStudiedToday.length > 0) {
-            return res.status(200).json({ alreadystudied: true });
-        } else {
-            return res.status(200).json({ alreadystudied: false });
-        }
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-}
 
 module.exports = {
     signup,
     login,
     me,
-    alreadyStudied,
 };

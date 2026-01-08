@@ -26,6 +26,7 @@ app.use(
 );
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/lesson', require('./routes/lessonRoutes'));
+app.use('/api/studySession', require('./routes/studySessionRoutes'));
 
 app.use((err, req, res, next) => {
     console.error('Error:', err.message);
