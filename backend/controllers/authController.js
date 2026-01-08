@@ -1,0 +1,129 @@
+const bcrypt = require('bcrypt');
+const prisma = require('../prismaClient');
+
+async function signup(req, res, next) {
+    try {
+        const { email, name, password } = req.body;
+        if (!email || !name || !password) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+        const existingUser = await prisma.user.findUnique({ where: { email } });
+        if (existingUser) {
+            return res.status(409).json({ message: 'User already exists' });
+        }
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = await prisma.user.create({
+            data: { email, name, password: hashedPassword },
+        });
+        req.session.userId = user.id;
+        res.status(201).json({
+            message: 'User created successfully',
+            userId: user.id,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+async function login(req, res, next) {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res
+                .status(400)
+                .json({ message: 'Email and password are required' });
+        }
+        const user = await prisma.user.findUnique({ where: { email } });
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        if (!passwordMatch) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+        req.session.userId = user.id;
+        res.status(200).json({
+            message: 'Login successful',
+            userId: user.id,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+async function me(req, res, next) {
+    try {
+        if (!req.session.userId) {
+            return res.status(401).json({ message: 'Not authenticated' });
+        }
+        const user = await prisma.user.findUnique({
+            where: { id: req.session.userId },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                role: true,
+                createdAt: true,
+            },
+        });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json({ user });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+async function alreadyStudied(req, res) {
+    const now = new Date();
+    const startOfDay = new Date(
+        Date.UTC(
+            now.getUTCFullYear(),
+            now.getUTCMonth(),
+            now.getUTCDate(),
+            0,
+            0,
+            0,
+            0
+        )
+    );
+    const startOfNextDay = new Date(
+        Date.UTC(
+            now.getUTCFullYear(),
+            now.getUTCMonth(),
+            now.getUTCDate() + 1,
+            0,
+            0,
+            0,
+            0
+        )
+    );
+    try {
+        const lessonsStudiedToday = await prisma.studySession.findMany({
+            where: {
+                userId: req.session.userId,
+                createdAt: {
+                    gte: startOfDay,
+                    lt: startOfNextDay,
+                },
+            },
+        });
+
+        if (lessonsStudiedToday.length > 0) {
+            return res.status(200).json({ alreadystudied: true });
+        } else {
+            return res.status(200).json({ alreadystudied: false });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+module.exports = {
+    signup,
+    login,
+    me,
+    alreadyStudied,
+};
